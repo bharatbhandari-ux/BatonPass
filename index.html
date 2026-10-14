@@ -13,7 +13,7 @@ nav{display:flex;gap:6px}nav button{width:auto;flex:1}.row{display:flex;gap:8px;
 video{width:100%;max-height:35vh;border-radius:8px;background:#000}.ov{position:fixed;inset:10px;z-index:9;overflow:auto}
 </style></head><body><main id="app"></main>
 <script>
-const API='PASTE_APPS_SCRIPT_WEB_APP_URL';
+const API='https://script.google.com/macros/s/AKfycbz0gGp6oeT3FDI-NbqtrR-77yxlop0j1yibXw0A5ya6cZC1n--J0K2QzxmrWQGqYBc5/exec';
 const TL={LM_NURSE:['Lastmile to Nurse',['lastmile','nurse']],LM_RUNNER_NURSE:['Lastmile to Runner to Nurse',['lastmile','runner','nurse']],NURSE_LM:['Nurse to Lastmile',['nurse','lastmile']],NURSE_RUNNER_LM:['Nurse to Runner to Lastmile',['nurse','runner','lastmile']]};
 let T=localStorage.t||'',me,tab='h',data={out:[],inb:[]},done={},msg='',ip,timer,busy=0,qt,Q={},last='';
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';'),opt=(a,f)=>a.map(f).join('');
