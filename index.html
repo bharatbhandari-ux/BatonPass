@@ -1,4 +1,3 @@
-https://script.google.com/macros/s/AKfycbz0gGp6oeT3FDI-NbqtrR-77yxlop0j1yibXw0A5ya6cZC1n--J0K2QzxmrWQGqYBc5/exec
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>BatonPass</title><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="theme-color" content="#0d6b5c">
 <style>
 :root{--bg:#f3f5f4;--card:#fff;--ink:#14231f;--mut:#5d6f69;--line:#d5dcd9;--ac:#0d6b5c;--warn:#b45309;--bad:#b42318;--ok:#0f7a3d}
@@ -14,7 +13,7 @@ nav{display:flex;gap:6px}nav button{width:auto;flex:1}.row{display:flex;gap:8px;
 video{width:100%;border-radius:8px;background:#000}
 </style></head><body><main id="app"></main>
 <script>
-const API='PASTE_APPS_SCRIPT_WEB_APP_URL';
+const API='https://script.google.com/macros/s/AKfycbz0gGp6oeT3FDI-NbqtrR-77yxlop0j1yibXw0A5ya6cZC1n--J0K2QzxmrWQGqYBc5/exec';
 const TL={LM_NURSE:['Lastmile to Nurse',['lastmile','nurse']],LM_RUNNER_NURSE:['Lastmile to Runner to Nurse',['lastmile','runner','nurse']],NURSE_LM:['Nurse to Lastmile',['nurse','lastmile']],NURSE_RUNNER_LM:['Nurse to Runner to Lastmile',['nurse','runner','lastmile']]};
 let T=localStorage.t||'',me,tab='h',data={out:[],inb:[]},done={},msg='',cur={},ip,timer;
 const $=(s)=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
