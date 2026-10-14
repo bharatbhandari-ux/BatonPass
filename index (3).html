@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>BatonPass</title><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="theme-color" content="#0d6b5c">
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--ink:#14231f;--mut:#5d6f69;--line:#d5dcd9;--ac:#0d6b5c;--warn:#b45309;--bad:#b42318;--ok:#0f7a3d}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1715;--card:#18231f;--ink:#e8f0ed;--mut:#9bb0a9;--line:#2c3b36;--ac:#3cc7ae;--warn:#f0a43a;--bad:#ff7b6e;--ok:#4cd28a}}
+*{box-sizing:border-box}body{margin:0;font:16px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--ink);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:520px;margin:0 auto;padding:12px}h1{font-size:20px;margin:8px 0}h2{font-size:16px;margin:0 0 8px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
+input,select,button{font:inherit;width:100%;padding:11px;margin:4px 0;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+button{background:var(--ac);color:var(--bg);border:0;font-weight:600;cursor:pointer}button.s{background:none;color:var(--ac);border:1px solid var(--ac)}button:disabled{background:var(--line);color:var(--mut);cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--warn);outline-offset:1px}
+nav{display:flex;gap:6px}nav button{width:auto;flex:1}.row{display:flex;gap:8px;align-items:center}.row>*{margin:4px 0}.row button{width:auto}
+.o{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:15px}.ok{color:var(--ok)}.m{color:var(--mut);font-size:14px}
+.otp{font-size:36px;letter-spacing:6px;text-align:center;font-weight:700;color:var(--ac)}#err{color:var(--bad);min-height:22px;font-weight:600}
+video{width:100%;border-radius:8px;background:#000}
+</style></head><body><main id="app"></main>
+<script>
+const API='PASTE_APPS_SCRIPT_WEB_APP_URL';
+const TL={LM_NURSE:['Lastmile to Nurse',['lastmile','nurse']],LM_RUNNER_NURSE:['Lastmile to Runner to Nurse',['lastmile','runner','nurse']],NURSE_LM:['Nurse to Lastmile',['nurse','lastmile']],NURSE_RUNNER_LM:['Nurse to Runner to Lastmile',['nurse','runner','lastmile']]};
+let T=localStorage.t||'',me,tab='h',data={out:[],inb:[]},done={},msg='',cur={},ip,timer;
+const $=(s)=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e});
+async function api(a,d={}){try{const r=await fetch(API,{method:'POST',body:JSON.stringify({a,t:T,...d})}),j=await r.json();if(j.err){if(j.err=='SESSION'){logout();throw 0}msg=j.err;return null}msg='';return j}catch(e){if(e!==0)msg='Network error. Check connection.';return null}}
+function logout(){T='';delete localStorage.t;me=null;clearInterval(timer);login()}
+function login(){$('#app').innerHTML=`<h1>BatonPass</h1><div class="c"><input id="u" placeholder="User ID" autocomplete="username"><input id="p" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password"><button id="go">Log in</button><div id="err">${esc(msg)}</div></div>`;
+$('#go').onclick=async()=>{const r=await api('login',{uid:$('#u').value.trim(),pin:$('#p').value});if(!r)return login();T=r.t;localStorage.t=T;r.must?pin():start()}}
+function pin(){$('#app').innerHTML=`<h1>Set a new PIN</h1><div class="c"><p class="m">Choose a 4 to 6 digit PIN. You must change it before continuing.</p><input id="n" type="password" inputmode="numeric" placeholder="New PIN"><button id="go">Save PIN</button><div id="err">${esc(msg)}</div></div>`;
+$('#go').onclick=async()=>{if(await api('setPin',{pin:$('#n').value}))inst();else pin()}}
+function inst(){if(matchMedia('(display-mode:standalone)').matches)return start();$('#app').innerHTML=`<h1>Add to home screen</h1><div class="c"><p class="m">Install the app for one-tap access.</p><button id="i">Install app</button><button class="s" id="k">Skip</button></div>`;
+$('#i').onclick=async()=>{if(ip){ip.prompt();await ip.userChoice;start()}else{alert(/iphone|ipad/i.test(navigator.userAgent)?'Tap the Share icon, then Add to Home Screen.':'Open the browser menu and choose Install app or Add to Home screen.');start()}};$('#k').onclick=start}
+async function start(){const r=await api('me');if(!r)return login();me=r;await refresh();timer=setInterval(()=>{if(!document.activeElement||document.activeElement.tagName!='INPUT')refresh()},8000)}
+async function refresh(){const r=await api('list');if(r)data=r;draw()}
+function draw(){const u=me.u,tabs=[['h','Handover']].concat([['i','Inbox']]).concat(u.role=='nurse'?[['c','Check-in']]:[]);if(u.role=='runner'&&tab=='h')tab='i';
+let h=`<div class="row"><h1 style="flex:1">${esc(u.name)} <span class="m">${u.role}, ${esc(u.city)}</span></h1><button class="s" onclick="logout()">Log out</button></div><nav>${tabs.filter(t=>!(u.role=='runner'&&t[0]=='h')).map(t=>`<button class="${tab==t[0]?'':'s'}" onclick="tab='${t[0]}';draw()">${t[1]}${t[0]=='i'&&data.inb.length?' ('+data.inb.length+')':''}</button>`).join('')}</nav><div id="err">${esc(msg)}</div>`;
+h+=tab=='h'?outView():tab=='i'?inView():chkView();$('#app').innerHTML=h;if(tab=='c')chkBind();if(tab=='h')formBind()}
+const hubsFor=()=>me.u.role=='nurse'?me.hubs:me.u.hubs.split(',').map(s=>s.trim()).filter(Boolean);
+const inHub=(p,h)=>p.role=='nurse'||p.hubs.split(',').map(s=>s.trim()).includes(h);
+const opt=(a,f)=>a.map(x=>f(x)).join('');
+function formBind(){const f=$('#nf');if(!f)return;const ty=$('#ty'),hb=$('#hb');const fill=()=>{const T3=TL[ty.value][1],h=hb.value,ppl=r=>me.people.filter(p=>p.role==r&&inHub(p,h));const rr=T3.length==3?'runner':T3[1];
+$('#rv').innerHTML=opt(ppl(rr),p=>`<option value="${p.id}">${esc(p.name)}</option>`);$('#fnw').style.display=T3.length==3?'block':'none';$('#fn').innerHTML=opt(ppl(T3[2]),p=>`<option value="${p.id}">${esc(p.name)}</option>`)};ty.onchange=hb.onchange=fill;fill();
+$('#mk').onclick=async()=>{if(!$('#rv').value)return alert('No receiver available at this hub');const T3=TL[ty.value][1];if(await api('create',{type:ty.value,hub:hb.value,recv:$('#rv').value,fin:T3.length==3?$('#fn').value:''}))await refresh();else draw()}}
+function outView(){const ty=Object.keys(TL).filter(k=>TL[k][1][0]==me.u.role);
+let h=`<div class="c" id="nf"><h2>New handover</h2><select id="ty">${opt(ty,k=>`<option value="${k}">${TL[k][0]}</option>`)}</select><select id="hb">${opt(hubsFor(),x=>`<option>${esc(x)}</option>`)}</select><label class="m">Receiver</label><select id="rv"></select><div id="fnw"><label class="m">Final receiver</label><select id="fn"></select></div><button id="mk">Create batch</button></div>`;
+return h+data.out.map(b=>{const c=b.status=='Created',d=done[b.id],all=b.orders.length,sc=b.orders.filter(o=>o.rs).length;
+return `<div class="c"><h2>${TL[b.type][0]} · leg ${b.leg}</h2><div class="m">To ${esc(b.other)} at ${esc(b.hub)} · ${b.status}</div>${b.stuck?'<div class="m" style="color:var(--warn)">Receiver reported missing orders. Remove the orders not received to continue.</div>':''}${b.orders.map(o=>`<div class="o"><span>${esc(o.id)}</span>${c||(b.stuck&&!o.rs&&b.status!='OTP generated')?`<a href="#" onclick="rm('${b.id}','${esc(o.id)}');return false">Remove</a>`:''}${!c&&o.rs?'<span class="ok">received</span>':''}</div>`).join('')||'<p class="m">No orders yet.</p>'}
+${c?`<div class="row"><input id="o${b.id}" placeholder="Order ID" ${d?'disabled':''}><button class="s" ${d?'disabled':''} onclick="scan(x=>add('${b.id}',x))">Scan</button><button ${d?'disabled':''} onclick="add('${b.id}',$('#o${b.id}').value)">Add</button></div>
+<button ${all&&!d?'':'disabled'} onclick="if(confirm('Are you sure all orders are scanned for handover?')){done['${b.id}']=1;draw()}">Done scanning</button>
+<button ${d?'':'disabled'} onclick="xfer('${b.id}')">Transfer orders</button>${d?`<button class="s" onclick="delete done['${b.id}'];draw()">Scan more</button>`:''}`
+:`<p class="m">${sc} of ${all} received</p><div class="row"><input id="p${b.id}" inputmode="numeric" placeholder="Handover OTP" ${b.status=='OTP generated'?'':'disabled'}><button ${b.status=='OTP generated'?'':'disabled'} onclick="vo('${b.id}')">Enter handover OTP</button></div>`}</div>`}).join('')}
+function inView(){return data.inb.map(b=>{const all=b.orders.length,sc=b.orders.filter(o=>o.rs).length;return `<div class="c"><h2>From ${esc(b.other)}</h2><div class="m">${TL[b.type][0]} · ${esc(b.hub)} · ${sc} of ${all} scanned</div>${b.orders.map(o=>`<div class="o"><span>${esc(o.id)}</span><span class="${o.rs?'ok':'m'}">${o.rs?'scanned':'pending'}</span></div>`).join('')}
+<div class="row"><input id="r${b.id}" placeholder="Order ID"><button class="s" onclick="scan(x=>rs('${b.id}',x))">Scan</button><button onclick="rs('${b.id}',$('#r${b.id}').value)">Add</button></div>
+${b.otp?`<div class="otp">${b.otp}</div><p class="m">Share this OTP with ${esc(b.other)}. Valid 10 minutes.</p>`:''}${sc<all&&b.status!='OTP generated'?(b.stuck?'<p class="m">Reported. Waiting for the sender to remove the orders not received.</p>':`<button class="s" onclick="if(confirm('Report orders not received? The sender will be allowed to remove them.'))go('reportStuck',{b:'${b.id}'})">Orders not received</button>`):''}<button ${sc==all&&all?'':'disabled'} onclick="go('genOtp',{b:'${b.id}'})">${b.otp?'New OTP':'Generate OTP'}</button></div>`}).join('')||'<p class="m c">No incoming handovers.</p>'}
+function chkView(){return `<div class="c"><h2>Check in at hub</h2><select id="ch">${opt(me.hubs,x=>`<option>${esc(x)}</option>`)}</select><select id="cm"></select><button id="ck">Check in</button></div>`}
+function chkBind(){const f=()=>$('#cm').innerHTML=opt(me.people.filter(p=>p.role!='nurse'&&inHub(p,$('#ch').value)),p=>`<option value="${p.id}">${esc(p.name)} (${p.role})</option>`);$('#ch').onchange=f;f();$('#ck').onclick=async()=>{if(!$('#cm').value)return alert('No one tagged to this hub');if(await api('checkin',{hub:$('#ch').value,met:$('#cm').value}))alert('Checked in at '+new Date().toLocaleString());draw()}}
+async function go(a,d){await api(a,d);await refresh()}
+const add=(b,o)=>go('addOrder',{b,order:o}),rm=(b,o)=>go('removeOrder',{b,order:o}),rs=(b,o)=>go('recvScan',{b,order:o}),xfer=b=>go('transfer',{b}),vo=b=>go('verifyOtp',{b,otp:$('#p'+b).value});
+async function scan(cb){if(!('BarcodeDetector' in window))return alert('Camera scan not supported on this browser. Type the order ID.');
+const d=document.createElement('div');d.className='c';d.style.cssText='position:fixed;inset:10px;z-index:9;overflow:auto';d.innerHTML='<video autoplay playsinline></video><button class="s">Close</button>';document.body.append(d);
+const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}),v=d.querySelector('video');v.srcObject=s;const det=new BarcodeDetector();let on=1;
+const stop=()=>{on=0;s.getTracks().forEach(t=>t.stop());d.remove()};d.querySelector('button').onclick=stop;
+(async function L(){if(!on)return;try{const r=await det.detect(v);if(r.length){const x=r[0].rawValue;stop();return cb(x)}}catch(e){}setTimeout(L,300)})()}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+T?start():login();
+</script></body></html>
