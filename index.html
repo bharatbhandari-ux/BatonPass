@@ -15,7 +15,7 @@ video{width:100%;max-height:35vh;border-radius:8px;background:#000}.ov{position:
 <script>addEventListener("error",function(e){var a=document.getElementById("app");if(a&&!a.innerHTML.trim())a.innerHTML='<p style="color:#b42318;padding:12px;font-weight:600">Page error: '+e.message+' (line '+e.lineno+'). Check the API line in index.html.</p>'})</script>
 <script>
 const VER='v3';
-const API='PASTE_APPS_SCRIPT_WEB_APP_URL';
+const API='https://script.google.com/macros/s/AKfycbz0gGp6oeT3FDI-NbqtrR-77yxlop0j1yibXw0A5ya6cZC1n--J0K2QzxmrWQGqYBc5/exec';
 const ST={Created:'Draft',Transferred:'Sent',Receiving:'Ongoing','OTP generated':'Ongoing, OTP ready',Locked:'Locked, contact admin',Closed:'Completed',Rejected:'Rejected'};
 let T=localStorage.t||'',me,tab='o',data={c:{o:0,d:0,r:0},out:[],inb:[]},hist={d:null,r:null},done=JSON.parse(localStorage.done||'{}'),wk={},op={},msg='',note='',showNew=false,seen=null,ip,timer,busy=0,qt,Q={},last='',P=Promise.resolve(),pend=0;
 const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';'),opt=(a,f)=>a.map(f).join('');
