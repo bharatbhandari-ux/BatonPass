@@ -13,7 +13,7 @@ nav{display:flex;gap:6px}nav button{width:auto;flex:1;padding:9px 4px}.row{displ
 video{width:100%;max-height:35vh;border-radius:8px;background:#000}.ov{position:fixed;inset:10px;z-index:9;overflow:auto}summary{cursor:pointer;font-weight:600}
 </style></head><body><main id="app"></main>
 <script>
-const API='PASTE_APPS_SCRIPT_WEB_APP_URL';
+const API='https://script.google.com/macros/s/AKfycbz0gGp6oeT3FDI-NbqtrR-77yxlop0j1yibXw0A5ya6cZC1n--J0K2QzxmrWQGqYBc5/exec;
 const ST={Created:'Draft',Transferred:'Sent',Receiving:'Receiving','OTP generated':'OTP ready',Locked:'Locked, contact admin',Closed:'Completed',Rejected:'Rejected'};
 let T=localStorage.t||'',me,tab='o',data={c:{o:0,d:0,r:0},out:[],inb:[]},hist={d:null,r:null},done={},op={},msg='',note='',showNew=false,seen=null,ip,timer,busy=0,qt,Q={},last='',P=Promise.resolve(),pend=0;
 const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';'),opt=(a,f)=>a.map(f).join('');
